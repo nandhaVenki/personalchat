@@ -163,7 +163,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textUri"
-            android:text="http://10.0.2.2:3000"
+            android:text="https://personalchat-signaling.onrender.com"
             android:textColor="@color/text_primary" />
     </com.google.android.material.textfield.TextInputLayout>
 

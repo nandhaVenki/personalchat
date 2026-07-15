@@ -19,7 +19,7 @@ import io.socket.emitter.Emitter;
 
 public class SocketManager {
     private static final String TAG = "SocketManager";
-    private static final String DEFAULT_SERVER_URL = "http://10.0.2.2:3000"; // Emulator localhost mapping
+    private static final String DEFAULT_SERVER_URL = "https://personalchat-signaling.onrender.com";
 
     private static SocketManager instance;
     private Socket socket;

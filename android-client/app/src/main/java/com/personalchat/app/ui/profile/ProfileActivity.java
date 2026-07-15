@@ -47,7 +47,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Load saved signaling URL from profile prefs
         SharedPreferences prefs = getSharedPreferences("profile_prefs", MODE_PRIVATE);
-        String savedUrl = prefs.getString("signaling_url", "http://10.0.2.2:3000");
+        String savedUrl = prefs.getString("signaling_url", "https://personalchat-signaling.onrender.com");
         inputSignalingUrl.setText(savedUrl);
 
         btnSave.setOnClickListener(v -> {

@@ -1,0 +1,28 @@
+# IDE configurations
+.idea/
+*.iml
+.gradle/
+.navigation/
+
+# Local SDK and signing configs
+local.properties
+*.keystore
+*.jks
+
+# Build outputs
+build/
+app/build/
+captured_screenshots/
+*.apk
+*.aar
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+
+# System files
+.DS_Store
+Thumbs.db

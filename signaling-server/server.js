@@ -274,7 +274,6 @@ io.on('connection', (socket) => {
     }
   });
 });
-});
 
 // Basic HTTP status endpoint
 app.get('/health', (req, res) => {

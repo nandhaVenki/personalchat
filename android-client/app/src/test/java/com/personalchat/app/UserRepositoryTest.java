@@ -11,7 +11,7 @@ public class UserRepositoryTest {
     @Test
     public void testNormalizePhoneNumber_formattedUS() {
         String input = "+1 (555) 123-4567";
-        String expected = "+15551234567";
+        String expected = "5551234567";
         String actual = UserRepository.normalizePhoneNumber(input);
         assertEquals(expected, actual);
     }
@@ -19,7 +19,7 @@ public class UserRepositoryTest {
     @Test
     public void testNormalizePhoneNumber_raw10Digits() {
         String input = "5551234567";
-        String expected = "+15551234567"; // Prepend default US code
+        String expected = "5551234567";
         String actual = UserRepository.normalizePhoneNumber(input);
         assertEquals(expected, actual);
     }
@@ -27,7 +27,7 @@ public class UserRepositoryTest {
     @Test
     public void testNormalizePhoneNumber_internationalUK() {
         String input = "+44 7911 123456";
-        String expected = "+447911123456";
+        String expected = "7911123456"; // Last 10 digits of 447911123456
         String actual = UserRepository.normalizePhoneNumber(input);
         assertEquals(expected, actual);
     }

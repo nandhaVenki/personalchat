@@ -101,11 +101,18 @@ public class ChatActivity extends AppCompatActivity implements SocketManager.Soc
     @Override
     protected void onResume() {
         super.onResume();
-        socketManager.setListener(this);
-        webRtcManager.setStateListener(this);
+        socketManager.addListener(this);
+        webRtcManager.addStateListener(this);
         
         // Refresh connection state in VM
         viewModel.updateConnectionState(webRtcManager.getConnectionState(conversationId));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        socketManager.removeListener(this);
+        webRtcManager.removeStateListener(this);
     }
 
     private void triggerConnectionCheck() {
@@ -142,57 +149,6 @@ public class ChatActivity extends AppCompatActivity implements SocketManager.Soc
     @Override
     public void onDisconnected() {
         viewModel.updateConnectionState(PeerConnectionState.UNAVAILABLE);
-    }
-
-    @Override
-    public void onPeerOnline(String deviceId, String phoneHash) {
-        if (conversationId.equals(deviceId)) {
-            triggerConnectionCheck();
-        }
-    }
-
-    @Override
-    public void onPeerOffline(String deviceId, String phoneHash) {
-        if (conversationId.equals(deviceId)) {
-            viewModel.updateConnectionState(PeerConnectionState.UNAVAILABLE);
-            webRtcManager.disconnectPeer(deviceId);
-        }
-    }
-
-    @Override
-    public void onConnectionRequest(String senderDeviceId) {
-        if (conversationId.equals(senderDeviceId)) {
-            webRtcManager.initiateConnection(senderDeviceId);
-        }
-    }
-
-    @Override
-    public void onWebRtcOffer(String senderDeviceId, String sdp) {
-        if (conversationId.equals(senderDeviceId)) {
-            webRtcManager.handleIncomingOffer(senderDeviceId, sdp);
-        }
-    }
-
-    @Override
-    public void onWebRtcAnswer(String senderDeviceId, String sdp) {
-        if (conversationId.equals(senderDeviceId)) {
-            webRtcManager.handleIncomingAnswer(senderDeviceId, sdp);
-        }
-    }
-
-    @Override
-    public void onIceCandidate(String senderDeviceId, JSONObject candidate) {
-        if (conversationId.equals(senderDeviceId)) {
-            webRtcManager.handleIncomingIceCandidate(senderDeviceId, candidate);
-        }
-    }
-
-    @Override
-    public void onConnectionError(String senderDeviceId, String reason) {
-        if (conversationId.equals(senderDeviceId)) {
-            viewModel.updateConnectionState(PeerConnectionState.UNAVAILABLE);
-            webRtcManager.handleConnectionError(senderDeviceId, reason);
-        }
     }
 
     // WebRtcManager.WebRtcStateListener delegate

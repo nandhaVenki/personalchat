@@ -36,20 +36,26 @@ public class OnboardingActivity extends AppCompatActivity {
 
     private void handleContinue() {
         String name = inputName.getText() != null ? inputName.getText().toString().trim() : "";
-        String phone = inputPhone.getText() != null ? inputPhone.getText().toString().trim() : "";
+        String phoneInput = inputPhone.getText() != null ? inputPhone.getText().toString().trim() : "";
 
         if (TextUtils.isEmpty(name)) {
             inputName.setError("Display name is required");
             return;
         }
 
-        if (TextUtils.isEmpty(phone)) {
+        if (TextUtils.isEmpty(phoneInput)) {
             inputPhone.setError("Mobile number is required");
             return;
         }
 
+        String normalizedPhone = UserRepository.normalizePhoneNumber(phoneInput);
+        if (normalizedPhone.length() != 10) {
+            inputPhone.setError("Mobile number must be exactly 10 digits");
+            return;
+        }
+
         // Save profile locally (hashes phone, generates RSA KeyPair in Android Keystore, stores values)
-        userRepository.saveProfile(name, phone);
+        userRepository.saveProfile(name, normalizedPhone);
 
         Toast.makeText(this, "Profile created successfully!", Toast.LENGTH_SHORT).show();
 

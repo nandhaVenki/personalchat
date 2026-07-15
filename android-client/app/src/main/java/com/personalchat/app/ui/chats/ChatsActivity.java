@@ -117,20 +117,27 @@ public class ChatsActivity extends AppCompatActivity implements SocketManager.So
     @Override
     protected void onResume() {
         super.onResume();
-        socketManager.setListener(this);
-        webRtcManager.setStateListener(this);
+        socketManager.addListener(this);
+        webRtcManager.addStateListener(this);
         viewModel.updateSignalingConnected(socketManager.isConnected());
         
         // Auto-negotiate WebRTC for conversations marked as CONNECTING or CONNECTED on startup
         tryConnectToAllPeers();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        socketManager.removeListener(this);
+        webRtcManager.removeStateListener(this);
+    }
+
     private void setupNetwork() {
         // Fetch customized signaling server URL from profile preferences
         SharedPreferences settingsPrefs = getSharedPreferences("profile_prefs", MODE_PRIVATE);
-        String savedUrl = settingsPrefs.getString("signaling_url", "http://10.0.2.2:3000");
+        String savedUrl = settingsPrefs.getString("signaling_url", "https://personalchat-signaling.onrender.com");
 
-        socketManager.setListener(this);
+        socketManager.addListener(this);
         socketManager.connect(savedUrl);
     }
 
@@ -160,50 +167,9 @@ public class ChatsActivity extends AppCompatActivity implements SocketManager.So
         viewModel.updateSignalingConnected(false);
     }
 
-    @Override
-    public void onPeerOnline(String deviceId, String phoneHash) {
-        Log.d(TAG, "Peer online: " + deviceId);
-        // Try connecting WebRTC
-        socketManager.sendConnectionRequest(deviceId);
-    }
-
-    @Override
-    public void onPeerOffline(String deviceId, String phoneHash) {
-        Log.d(TAG, "Peer offline: " + deviceId);
-        webRtcManager.disconnectPeer(deviceId);
-    }
-
-    @Override
-    public void onConnectionRequest(String senderDeviceId) {
-        Log.d(TAG, "Incoming WebRTC connection request from: " + senderDeviceId);
-        // We act as offerer upon request
-        webRtcManager.initiateConnection(senderDeviceId);
-    }
-
-    @Override
-    public void onWebRtcOffer(String senderDeviceId, String sdp) {
-        webRtcManager.handleIncomingOffer(senderDeviceId, sdp);
-    }
-
-    @Override
-    public void onWebRtcAnswer(String senderDeviceId, String sdp) {
-        webRtcManager.handleIncomingAnswer(senderDeviceId, sdp);
-    }
-
-    @Override
-    public void onIceCandidate(String senderDeviceId, JSONObject candidate) {
-        webRtcManager.handleIncomingIceCandidate(senderDeviceId, candidate);
-    }
-
-    @Override
-    public void onConnectionError(String senderDeviceId, String reason) {
-        webRtcManager.handleConnectionError(senderDeviceId, reason);
-    }
-
     // WebRtcManager.WebRtcStateListener callbacks
     @Override
     public void onConnectionStateChanged(String peerDeviceId, PeerConnectionState state) {
-        // Redundant trigger, Room LiveData observes connection status updates
         Log.d(TAG, "P2P Connection state changed for " + peerDeviceId + " -> " + state.name());
     }
 }

@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class WebRtcManager {
+public class WebRtcManager implements SocketManager.SocketListener {
     private static final String TAG = "WebRtcManager";
 
     private static WebRtcManager instance;
@@ -51,7 +51,7 @@ public class WebRtcManager {
     private final Map<String, PeerConnectionState> connectionStates = new ConcurrentHashMap<>();
 
     private List<PeerConnection.IceServer> iceServersList = new ArrayList<>();
-    private WebRtcStateListener stateListener;
+    private final List<WebRtcStateListener> stateListeners = new java.util.concurrent.CopyOnWriteArrayList<>();
 
     public interface WebRtcStateListener {
         void onConnectionStateChanged(String peerDeviceId, PeerConnectionState state);
@@ -72,10 +72,17 @@ public class WebRtcManager {
         this.dbExecutor = Executors.newSingleThreadExecutor();
 
         initializeWebRtc();
+        SocketManager.getInstance(context).addListener(this);
     }
 
-    public void setStateListener(WebRtcStateListener listener) {
-        this.stateListener = listener;
+    public void addStateListener(WebRtcStateListener listener) {
+        if (listener != null && !stateListeners.contains(listener)) {
+            stateListeners.add(listener);
+        }
+    }
+
+    public void removeStateListener(WebRtcStateListener listener) {
+        stateListeners.remove(listener);
     }
 
     private void initializeWebRtc() {
@@ -117,8 +124,8 @@ public class WebRtcManager {
         connectionStates.put(peerDeviceId, state);
         chatRepository.updateConversationConnectionState(peerDeviceId, state);
         mainHandler.post(() -> {
-            if (stateListener != null) {
-                stateListener.onConnectionStateChanged(peerDeviceId, state);
+            for (WebRtcStateListener listener : stateListeners) {
+                listener.onConnectionStateChanged(peerDeviceId, state);
             }
         });
     }
@@ -500,6 +507,61 @@ public class WebRtcManager {
         for (String peerDeviceId : new ArrayList<>(peerConnections.keySet())) {
             disconnectPeer(peerDeviceId);
         }
+    }
+
+    // SocketManager.SocketListener implementation
+    @Override
+    public void onConnected() {
+        dbExecutor.execute(() -> {
+            for (Conversation conversation : chatRepository.getAllConversationsSync()) {
+                SocketManager.getInstance(context).sendConnectionRequest(conversation.getId());
+            }
+        });
+    }
+
+    @Override
+    public void onDisconnected() {
+        disconnectAll();
+    }
+
+    @Override
+    public void onPeerOnline(String deviceId, String phoneHash) {
+        dbExecutor.execute(() -> {
+            Conversation conv = chatRepository.getConversationByIdSync(deviceId);
+            if (conv != null) {
+                SocketManager.getInstance(context).sendConnectionRequest(deviceId);
+            }
+        });
+    }
+
+    @Override
+    public void onPeerOffline(String deviceId, String phoneHash) {
+        disconnectPeer(deviceId);
+    }
+
+    @Override
+    public void onConnectionRequest(String senderDeviceId) {
+        initiateConnection(senderDeviceId);
+    }
+
+    @Override
+    public void onWebRtcOffer(String senderDeviceId, String sdp) {
+        handleIncomingOffer(senderDeviceId, sdp);
+    }
+
+    @Override
+    public void onWebRtcAnswer(String senderDeviceId, String sdp) {
+        handleIncomingAnswer(senderDeviceId, sdp);
+    }
+
+    @Override
+    public void onIceCandidate(String senderDeviceId, JSONObject candidate) {
+        handleIncomingIceCandidate(senderDeviceId, candidate);
+    }
+
+    @Override
+    public void onConnectionError(String senderDeviceId, String reason) {
+        handleConnectionError(senderDeviceId, reason);
     }
 
     // Helper classes to reduce boilerplate

@@ -26,19 +26,19 @@ public class SocketManager {
     private final Context context;
     private final UserRepository userRepository;
     private final Handler mainHandler;
-    private SocketListener listener;
+    private final java.util.List<SocketListener> listeners = new java.util.concurrent.CopyOnWriteArrayList<>();
     private boolean isRegistered = false;
 
     public interface SocketListener {
-        void onConnected();
-        void onDisconnected();
-        void onPeerOnline(String deviceId, String phoneHash);
-        void onPeerOffline(String deviceId, String phoneHash);
-        void onConnectionRequest(String senderDeviceId);
-        void onWebRtcOffer(String senderDeviceId, String sdp);
-        void onWebRtcAnswer(String senderDeviceId, String sdp);
-        void onIceCandidate(String senderDeviceId, JSONObject candidate);
-        void onConnectionError(String senderDeviceId, String reason);
+        default void onConnected() {}
+        default void onDisconnected() {}
+        default void onPeerOnline(String deviceId, String phoneHash) {}
+        default void onPeerOffline(String deviceId, String phoneHash) {}
+        default void onConnectionRequest(String senderDeviceId) {}
+        default void onWebRtcOffer(String senderDeviceId, String sdp) {}
+        default void onWebRtcAnswer(String senderDeviceId, String sdp) {}
+        default void onIceCandidate(String senderDeviceId, JSONObject candidate) {}
+        default void onConnectionError(String senderDeviceId, String reason) {}
     }
 
     public static synchronized SocketManager getInstance(Context context) {
@@ -54,8 +54,14 @@ public class SocketManager {
         this.mainHandler = new Handler(Looper.getMainLooper());
     }
 
-    public void setListener(SocketListener listener) {
-        this.listener = listener;
+    public void addListener(SocketListener listener) {
+        if (listener != null && !listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeListener(SocketListener listener) {
+        listeners.remove(listener);
     }
 
     public void connect(String serverUrl) {
@@ -95,7 +101,9 @@ public class SocketManager {
         socket.on(Socket.EVENT_CONNECT, args -> {
             Log.d(TAG, "Socket connected. Attempting registration...");
             mainHandler.post(() -> {
-                if (listener != null) listener.onConnected();
+                for (SocketListener listener : listeners) {
+                    listener.onConnected();
+                }
             });
             registerDevice();
         });
@@ -104,13 +112,30 @@ public class SocketManager {
             Log.d(TAG, "Socket disconnected.");
             isRegistered = false;
             mainHandler.post(() -> {
-                if (listener != null) listener.onDisconnected();
+                for (SocketListener listener : listeners) {
+                    listener.onDisconnected();
+                }
             });
         });
 
         socket.on("register-response", args -> {
             Log.d(TAG, "Registration confirmation received.");
             isRegistered = true;
+            try {
+                if (args != null && args.length > 0) {
+                    JSONObject data = (JSONObject) args[0];
+                    if (data.has("stunServers")) {
+                        org.json.JSONArray array = data.getJSONArray("stunServers");
+                        java.util.List<String> servers = new java.util.ArrayList<>();
+                        for (int i = 0; i < array.length(); i++) {
+                            servers.add(array.getString(i));
+                        }
+                        WebRtcManager.getInstance(context).setIceServers(servers);
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error parsing register-response", e);
+            }
         });
 
         socket.on("peer-online", args -> {
@@ -119,7 +144,9 @@ public class SocketManager {
                 String deviceId = data.getString("deviceId");
                 String phoneHash = data.getString("phoneHash");
                 mainHandler.post(() -> {
-                    if (listener != null) listener.onPeerOnline(deviceId, phoneHash);
+                    for (SocketListener listener : listeners) {
+                        listener.onPeerOnline(deviceId, phoneHash);
+                    }
                 });
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing peer-online", e);
@@ -132,7 +159,9 @@ public class SocketManager {
                 String deviceId = data.getString("deviceId");
                 String phoneHash = data.getString("phoneHash");
                 mainHandler.post(() -> {
-                    if (listener != null) listener.onPeerOffline(deviceId, phoneHash);
+                    for (SocketListener listener : listeners) {
+                        listener.onPeerOffline(deviceId, phoneHash);
+                    }
                 });
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing peer-offline", e);
@@ -144,7 +173,9 @@ public class SocketManager {
                 JSONObject data = (JSONObject) args[0];
                 String senderDeviceId = data.getString("senderDeviceId");
                 mainHandler.post(() -> {
-                    if (listener != null) listener.onConnectionRequest(senderDeviceId);
+                    for (SocketListener listener : listeners) {
+                        listener.onConnectionRequest(senderDeviceId);
+                    }
                 });
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing connection-request", e);
@@ -157,7 +188,9 @@ public class SocketManager {
                 String senderDeviceId = data.getString("senderDeviceId");
                 String sdp = data.getString("sdp");
                 mainHandler.post(() -> {
-                    if (listener != null) listener.onWebRtcOffer(senderDeviceId, sdp);
+                    for (SocketListener listener : listeners) {
+                        listener.onWebRtcOffer(senderDeviceId, sdp);
+                    }
                 });
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing webrtc-offer", e);
@@ -170,7 +203,9 @@ public class SocketManager {
                 String senderDeviceId = data.getString("senderDeviceId");
                 String sdp = data.getString("sdp");
                 mainHandler.post(() -> {
-                    if (listener != null) listener.onWebRtcAnswer(senderDeviceId, sdp);
+                    for (SocketListener listener : listeners) {
+                        listener.onWebRtcAnswer(senderDeviceId, sdp);
+                    }
                 });
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing webrtc-answer", e);
@@ -183,7 +218,9 @@ public class SocketManager {
                 String senderDeviceId = data.getString("senderDeviceId");
                 JSONObject candidate = data.getJSONObject("candidate");
                 mainHandler.post(() -> {
-                    if (listener != null) listener.onIceCandidate(senderDeviceId, candidate);
+                    for (SocketListener listener : listeners) {
+                        listener.onIceCandidate(senderDeviceId, candidate);
+                    }
                 });
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing ice-candidate", e);
@@ -196,7 +233,9 @@ public class SocketManager {
                 String senderDeviceId = data.getString("senderDeviceId");
                 String reason = data.getString("reason");
                 mainHandler.post(() -> {
-                    if (listener != null) listener.onConnectionError(senderDeviceId, reason);
+                    for (SocketListener listener : listeners) {
+                        listener.onConnectionError(senderDeviceId, reason);
+                    }
                 });
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing connection-error", e);

@@ -78,23 +78,16 @@ public class UserRepository {
         Log.d(TAG, "Profile saved: deviceId=" + deviceId + ", phoneHash=" + phoneHash);
     }
 
-    // Phone number normalization
+    // Phone number normalization: strictly return exactly the last 10 digits
     public static String normalizePhoneNumber(String raw) {
         if (raw == null) return "";
-        // Strip everything except digits and plus sign
-        String digits = raw.replaceAll("[^0-9+]", "");
-        if (digits.isEmpty()) {
+        // Strip everything except digits
+        String digits = raw.replaceAll("[^0-9]", "");
+        if (digits.length() < 10) {
             return "";
         }
-        // If it starts with + we keep it as is
-        if (digits.startsWith("+")) {
-            return digits;
-        }
-        // Else, let's prepend a default code (e.g. +1 for US/Canada) if it's 10 digits
-        if (digits.length() == 10) {
-            return "+1" + digits;
-        }
-        return "+" + digits; // fallback
+        // Take the last 10 digits
+        return digits.substring(digits.length() - 10);
     }
 
     // SHA-256 hash generator for phone number privacy

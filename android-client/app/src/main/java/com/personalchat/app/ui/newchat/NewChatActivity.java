@@ -32,7 +32,7 @@ import com.personalchat.app.ui.chat.ChatActivity;
 
 import org.json.JSONObject;
 
-public class NewChatActivity extends AppCompatActivity {
+public class NewChatActivity extends AppCompatActivity implements SocketManager.SocketListener {
     private static final String TAG = "NewChatActivity";
     private static final int REQUEST_CODE_CONTACT_PERMISSION = 100;
     private static final int REQUEST_CODE_PICK_CONTACT = 101;
@@ -149,18 +149,38 @@ public class NewChatActivity extends AppCompatActivity {
         }
 
         String normalized = UserRepository.normalizePhoneNumber(rawNumber);
+        if (normalized.length() != 10) {
+            inputPhoneManual.setError("Mobile number must be exactly 10 digits");
+            return;
+        }
+
         String hash = UserRepository.sha256(normalized);
 
         tvFeedback.setVisibility(View.GONE);
         progressLookup.setVisibility(View.VISIBLE);
         btnStartChat.setEnabled(false);
 
+        android.os.Handler timeoutHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+        Runnable timeoutRunnable = new Runnable() {
+            @Override
+            public void run() {
+                progressLookup.setVisibility(View.GONE);
+                btnStartChat.setEnabled(true);
+                tvFeedback.setText("Lookup timed out. Please verify signaling server compatibility and status.");
+                tvFeedback.setTextColor(androidx.core.content.ContextCompat.getColor(NewChatActivity.this, R.color.status_error));
+                tvFeedback.setVisibility(View.VISIBLE);
+            }
+        };
+        timeoutHandler.postDelayed(timeoutRunnable, 10000); // 10-second timeout
+
         socketManager.checkContact(hash, args -> runOnUiThread(() -> {
+            timeoutHandler.removeCallbacks(timeoutRunnable);
             progressLookup.setVisibility(View.GONE);
             btnStartChat.setEnabled(true);
 
             if (args == null || args.length == 0) {
                 tvFeedback.setText("Server error during verification.");
+                tvFeedback.setTextColor(androidx.core.content.ContextCompat.getColor(NewChatActivity.this, R.color.status_error));
                 tvFeedback.setVisibility(View.VISIBLE);
                 return;
             }
@@ -169,6 +189,7 @@ public class NewChatActivity extends AppCompatActivity {
                 JSONObject response = (JSONObject) args[0];
                 if (response.has("error")) {
                     tvFeedback.setText("Error: " + response.getString("error"));
+                    tvFeedback.setTextColor(androidx.core.content.ContextCompat.getColor(NewChatActivity.this, R.color.status_error));
                     tvFeedback.setVisibility(View.VISIBLE);
                     return;
                 }
@@ -201,14 +222,58 @@ public class NewChatActivity extends AppCompatActivity {
 
                 } else {
                     tvFeedback.setText(R.string.contact_not_registered);
+                    tvFeedback.setTextColor(androidx.core.content.ContextCompat.getColor(NewChatActivity.this, R.color.status_error));
                     tvFeedback.setVisibility(View.VISIBLE);
                 }
 
             } catch (Exception e) {
                 Log.e(TAG, "Failed parsing lookup response", e);
                 tvFeedback.setText("Parse error verifying registry.");
+                tvFeedback.setTextColor(androidx.core.content.ContextCompat.getColor(NewChatActivity.this, R.color.status_error));
                 tvFeedback.setVisibility(View.VISIBLE);
             }
         }));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        socketManager.addListener(this);
+        updateSignalingUi(socketManager.isConnected());
+
+        if (!socketManager.isConnected()) {
+            android.content.SharedPreferences settingsPrefs = getSharedPreferences("profile_prefs", MODE_PRIVATE);
+            String savedUrl = settingsPrefs.getString("signaling_url", "https://personalchat-signaling.onrender.com");
+            socketManager.connect(savedUrl);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        socketManager.removeListener(this);
+    }
+
+    private void updateSignalingUi(boolean isConnected) {
+        if (isConnected) {
+            tvFeedback.setVisibility(View.GONE);
+            btnStartChat.setEnabled(true);
+        } else {
+            tvFeedback.setText("Signaling offline. Waiting for connection...");
+            tvFeedback.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.status_connecting));
+            tvFeedback.setVisibility(View.VISIBLE);
+            btnStartChat.setEnabled(false);
+        }
+    }
+
+    // SocketManager.SocketListener callbacks
+    @Override
+    public void onConnected() {
+        updateSignalingUi(true);
+    }
+
+    @Override
+    public void onDisconnected() {
+        updateSignalingUi(false);
     }
 }

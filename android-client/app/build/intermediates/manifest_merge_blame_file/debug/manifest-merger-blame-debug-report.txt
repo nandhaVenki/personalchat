@@ -1,0 +1,204 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.personalchat.app"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="23"
+9        android:targetSdkVersion="34" />
+10
+11    <!-- Permissions required -->
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:6:5-67
+12-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:6:22-64
+13    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+13-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:7:5-79
+13-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:7:22-76
+14    <uses-permission android:name="android.permission.READ_CONTACTS" />
+14-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:8:5-72
+14-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:8:22-69
+15
+16    <permission
+16-->[androidx.core:core:1.9.0] C:\Users\nandh\.gradle\caches\transforms-4\8b7d7c6033c0ad55d1cbada688971ac0\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
+17        android:name="com.personalchat.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+17-->[androidx.core:core:1.9.0] C:\Users\nandh\.gradle\caches\transforms-4\8b7d7c6033c0ad55d1cbada688971ac0\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
+18        android:protectionLevel="signature" />
+18-->[androidx.core:core:1.9.0] C:\Users\nandh\.gradle\caches\transforms-4\8b7d7c6033c0ad55d1cbada688971ac0\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
+19
+20    <uses-permission android:name="com.personalchat.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+20-->[androidx.core:core:1.9.0] C:\Users\nandh\.gradle\caches\transforms-4\8b7d7c6033c0ad55d1cbada688971ac0\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
+20-->[androidx.core:core:1.9.0] C:\Users\nandh\.gradle\caches\transforms-4\8b7d7c6033c0ad55d1cbada688971ac0\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
+21
+22    <application
+22-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:10:5-62:19
+23        android:allowBackup="false"
+23-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:11:9-36
+24        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+24-->[androidx.core:core:1.9.0] C:\Users\nandh\.gradle\caches\transforms-4\8b7d7c6033c0ad55d1cbada688971ac0\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
+25        android:debuggable="true"
+26        android:extractNativeLibs="false"
+27        android:icon="@android:drawable/sym_def_app_icon"
+27-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:12:9-58
+28        android:label="@string/app_name"
+28-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:13:9-41
+29        android:supportsRtl="true"
+29-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:14:9-35
+30        android:testOnly="true"
+31        android:theme="@style/Theme.PersonalChat" >
+31-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:15:9-50
+32
+33        <!-- Splash / Entry Screen -->
+34        <activity
+34-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:19:9-27:20
+35            android:name="com.personalchat.app.ui.splash.SplashActivity"
+35-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:20:13-53
+36            android:exported="true"
+36-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:21:13-36
+37            android:theme="@style/Theme.PersonalChat.NoActionBar" >
+37-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:22:13-66
+38            <intent-filter>
+38-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:23:13-26:29
+39                <action android:name="android.intent.action.MAIN" />
+39-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:24:17-69
+39-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:24:25-66
+40
+41                <category android:name="android.intent.category.LAUNCHER" />
+41-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:25:17-77
+41-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:25:27-74
+42            </intent-filter>
+43        </activity>
+44
+45        <!-- Onboarding Profile Setup -->
+46        <activity
+46-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:30:9-34:69
+47            android:name="com.personalchat.app.ui.onboarding.OnboardingActivity"
+47-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:31:13-61
+48            android:exported="false"
+48-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:32:13-37
+49            android:theme="@style/Theme.PersonalChat.NoActionBar"
+49-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:34:13-66
+50            android:windowSoftInputMode="adjustResize" />
+50-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:33:13-55
+51
+52        <!-- Chats List Screen -->
+53        <activity
+53-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:37:9-40:69
+54            android:name="com.personalchat.app.ui.chats.ChatsActivity"
+54-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:38:13-51
+55            android:exported="false"
+55-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:39:13-37
+56            android:theme="@style/Theme.PersonalChat.NoActionBar" />
+56-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:40:13-66
+57
+58        <!-- New Chat Dialog / Screen -->
+59        <activity
+59-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:43:9-47:69
+60            android:name="com.personalchat.app.ui.newchat.NewChatActivity"
+60-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:44:13-55
+61            android:exported="false"
+61-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:45:13-37
+62            android:theme="@style/Theme.PersonalChat.NoActionBar"
+62-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:47:13-66
+63            android:windowSoftInputMode="adjustResize" />
+63-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:46:13-55
+64
+65        <!-- Direct 1-to-1 Chat Conversation Screen -->
+66        <activity
+66-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:50:9-54:69
+67            android:name="com.personalchat.app.ui.chat.ChatActivity"
+67-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:51:13-49
+68            android:exported="false"
+68-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:52:13-37
+69            android:theme="@style/Theme.PersonalChat.NoActionBar"
+69-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:54:13-66
+70            android:windowSoftInputMode="adjustResize" />
+70-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:53:13-55
+71
+72        <!-- Profile & Settings Screen -->
+73        <activity
+73-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:57:9-60:69
+74            android:name="com.personalchat.app.ui.profile.ProfileActivity"
+74-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:58:13-55
+75            android:exported="false"
+75-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:59:13-37
+76            android:theme="@style/Theme.PersonalChat.NoActionBar" />
+76-->C:\Users\nandh\Documents\DEV\android\android-client\app\src\main\AndroidManifest.xml:60:13-66
+77
+78        <service
+78-->[androidx.room:room-runtime:2.5.2] C:\Users\nandh\.gradle\caches\transforms-4\97baa16cea52d7a127b4e9cfe5f9e250\transformed\room-runtime-2.5.2\AndroidManifest.xml:24:9-28:63
+79            android:name="androidx.room.MultiInstanceInvalidationService"
+79-->[androidx.room:room-runtime:2.5.2] C:\Users\nandh\.gradle\caches\transforms-4\97baa16cea52d7a127b4e9cfe5f9e250\transformed\room-runtime-2.5.2\AndroidManifest.xml:25:13-74
+80            android:directBootAware="true"
+80-->[androidx.room:room-runtime:2.5.2] C:\Users\nandh\.gradle\caches\transforms-4\97baa16cea52d7a127b4e9cfe5f9e250\transformed\room-runtime-2.5.2\AndroidManifest.xml:26:13-43
+81            android:exported="false" />
+81-->[androidx.room:room-runtime:2.5.2] C:\Users\nandh\.gradle\caches\transforms-4\97baa16cea52d7a127b4e9cfe5f9e250\transformed\room-runtime-2.5.2\AndroidManifest.xml:27:13-37
+82
+83        <provider
+83-->[androidx.emoji2:emoji2:1.2.0] C:\Users\nandh\.gradle\caches\transforms-4\eba360f5ec7a9c841218e587f8b7ce98\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+84            android:name="androidx.startup.InitializationProvider"
+84-->[androidx.emoji2:emoji2:1.2.0] C:\Users\nandh\.gradle\caches\transforms-4\eba360f5ec7a9c841218e587f8b7ce98\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+85            android:authorities="com.personalchat.app.androidx-startup"
+85-->[androidx.emoji2:emoji2:1.2.0] C:\Users\nandh\.gradle\caches\transforms-4\eba360f5ec7a9c841218e587f8b7ce98\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+86            android:exported="false" >
+86-->[androidx.emoji2:emoji2:1.2.0] C:\Users\nandh\.gradle\caches\transforms-4\eba360f5ec7a9c841218e587f8b7ce98\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+87            <meta-data
+87-->[androidx.emoji2:emoji2:1.2.0] C:\Users\nandh\.gradle\caches\transforms-4\eba360f5ec7a9c841218e587f8b7ce98\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+88                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+88-->[androidx.emoji2:emoji2:1.2.0] C:\Users\nandh\.gradle\caches\transforms-4\eba360f5ec7a9c841218e587f8b7ce98\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+89                android:value="androidx.startup" />
+89-->[androidx.emoji2:emoji2:1.2.0] C:\Users\nandh\.gradle\caches\transforms-4\eba360f5ec7a9c841218e587f8b7ce98\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+90            <meta-data
+90-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\nandh\.gradle\caches\transforms-4\5e54f1e4f03cd604fc946cfbc35fd316\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
+91                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+91-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\nandh\.gradle\caches\transforms-4\5e54f1e4f03cd604fc946cfbc35fd316\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
+92                android:value="androidx.startup" />
+92-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\nandh\.gradle\caches\transforms-4\5e54f1e4f03cd604fc946cfbc35fd316\transformed\jetified-lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+93            <meta-data
+93-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+94                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+94-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+95                android:value="androidx.startup" />
+95-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+96        </provider>
+97
+98        <receiver
+98-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+99            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+99-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+100            android:directBootAware="false"
+100-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+101            android:enabled="true"
+101-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+102            android:exported="true"
+102-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+103            android:permission="android.permission.DUMP" >
+103-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+104            <intent-filter>
+104-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+105                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+105-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+105-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+106            </intent-filter>
+107            <intent-filter>
+107-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+108                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+108-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+108-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+109            </intent-filter>
+110            <intent-filter>
+110-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+111                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+111-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+111-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+112            </intent-filter>
+113            <intent-filter>
+113-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+114                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+114-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+114-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\nandh\.gradle\caches\transforms-4\9ed369b818a49273c959161372840049\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+115            </intent-filter>
+116        </receiver>
+117    </application>
+118
+119</manifest>

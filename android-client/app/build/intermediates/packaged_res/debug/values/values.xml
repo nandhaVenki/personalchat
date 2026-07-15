@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#00E676</color>
+    <color name="bg_dark">#0F172A</color>
+    <color name="border_dark">#334155</color>
+    <color name="bubble_incoming">#334155</color>
+    <color name="bubble_outgoing">#0284C7</color>
+    <color name="primary">#2196F3</color>
+    <color name="primary_dark">#1976D2</color>
+    <color name="primary_light">#BBDEFB</color>
+    <color name="status_connected">#10B981</color>
+    <color name="status_connecting">#F59E0B</color>
+    <color name="status_error">#EF4444</color>
+    <color name="surface_dark">#1E293B</color>
+    <color name="text_muted">#64748B</color>
+    <color name="text_primary">#F8FAFC</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFF</color>
+    <string name="app_name">PersonalChat</string>
+    <string name="btn_continue">Continue</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_start_chat">Start Conversation</string>
+    <string name="contact_not_registered">This number is not registered on PersonalChat.</string>
+    <string name="hint_display_name">Display Name</string>
+    <string name="hint_enter_number">Enter Mobile Number manually</string>
+    <string name="hint_message">Message</string>
+    <string name="hint_phone_number">Mobile Number</string>
+    <string name="label_contact_picker">Select from Contacts</string>
+    <string name="label_or">OR</string>
+    <string name="status_connected">Direct Connection established</string>
+    <string name="status_connecting">Connecting...</string>
+    <string name="status_unavailable">Unable to establish a direct private connection</string>
+    <string name="title_chats">Chats</string>
+    <string name="title_new_chat">New Chat</string>
+    <string name="title_onboarding">Profile Setup</string>
+    <string name="title_profile">Settings</string>
+    <style name="Theme.PersonalChat" parent="Theme.Material3.DayNight.NoActionBar">
+        
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorOnSecondary">@color/bg_dark</item>
+        
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        
+        <item name="android:windowBackground">@color/bg_dark</item>
+    </style>
+    <style name="Theme.PersonalChat.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:windowBackground">@color/bg_dark</item>
+    </style>
+</resources>

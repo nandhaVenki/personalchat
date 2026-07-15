@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">PersonalChat</string>
+    <string name="title_onboarding">Profile Setup</string>
+    <string name="title_chats">Chats</string>
+    <string name="title_new_chat">New Chat</string>
+    <string name="title_profile">Settings</string>
+    <string name="hint_display_name">Display Name</string>
+    <string name="hint_phone_number">Mobile Number</string>
+    <string name="btn_continue">Continue</string>
+    <string name="btn_save">Save</string>
+    <string name="label_contact_picker">Select from Contacts</string>
+    <string name="label_or">OR</string>
+    <string name="hint_enter_number">Enter Mobile Number manually</string>
+    <string name="btn_start_chat">Start Conversation</string>
+    <string name="hint_message">Message</string>
+    <string name="status_connecting">Connecting...</string>
+    <string name="status_connected">Direct Connection established</string>
+    <string name="status_unavailable">Unable to establish a direct private connection</string>
+    <string name="contact_not_registered">This number is not registered on PersonalChat.</string>
+</resources>

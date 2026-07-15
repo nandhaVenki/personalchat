@@ -74,6 +74,7 @@ public class SocketManager {
             IO.Options options = new IO.Options();
             options.forceNew = true;
             options.reconnection = true;
+            options.transports = new String[]{"websocket"};
             socket = IO.socket(url, options);
 
             setupSocketListeners();

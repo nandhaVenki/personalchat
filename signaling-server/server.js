@@ -50,185 +50,230 @@ io.on('connection', (socket) => {
 
   // 1. Device registration
   socket.on('register-device', (data) => {
-    const { phoneHash, deviceId, publicKey } = data;
-    if (!phoneHash || !deviceId || !publicKey) {
-      console.warn(`[Registry] Invalid registration attempt from ${socket.id}`);
-      return;
+    try {
+      if (!data) {
+        console.warn(`[Registry] Invalid null registration attempt from ${socket.id}`);
+        return;
+      }
+      const { phoneHash, deviceId, publicKey } = data;
+      if (!phoneHash || !deviceId || !publicKey) {
+        console.warn(`[Registry] Invalid registration attempt from ${socket.id}`);
+        return;
+      }
+
+      console.log(`[Registry] Registering device: ${deviceId} (Hashed phone prefix: ${phoneHash.substring(0, 8)}...)`);
+
+      // Clean up any old registration for this device
+      const existing = devices.get(deviceId);
+      if (existing && existing.socketId !== socket.id) {
+        // Disconnect or override old socket mapping
+        socketToDevice.delete(existing.socketId);
+      }
+
+      const deviceRecord = {
+        phoneHash,
+        socketId: socket.id,
+        publicKey,
+        isOnline: true
+      };
+
+      devices.set(deviceId, deviceRecord);
+      usersByPhone.set(phoneHash, deviceRecord);
+      socketToDevice.set(socket.id, deviceId);
+
+      // Respond with success and STUN server config
+      socket.emit('register-response', {
+        success: true,
+        stunServers: STUN_SERVERS
+      });
+
+      // Notify peers watching this device
+      notifyPresenceChange(deviceId, true);
+    } catch (err) {
+      console.error("[Server Error] register-device failed:", err);
     }
-
-    console.log(`[Registry] Registering device: ${deviceId} (Hashed phone prefix: ${phoneHash.substring(0, 8)}...)`);
-
-    // Clean up any old registration for this device
-    const existing = devices.get(deviceId);
-    if (existing && existing.socketId !== socket.id) {
-      // Disconnect or override old socket mapping
-      socketToDevice.delete(existing.socketId);
-    }
-
-    const deviceRecord = {
-      phoneHash,
-      socketId: socket.id,
-      publicKey,
-      isOnline: true
-    };
-
-    devices.set(deviceId, deviceRecord);
-    usersByPhone.set(phoneHash, deviceRecord);
-    socketToDevice.set(socket.id, deviceId);
-
-    // Respond with success and STUN server config
-    socket.emit('register-response', {
-      success: true,
-      stunServers: STUN_SERVERS
-    });
-
-    // Notify peers watching this device
-    notifyPresenceChange(deviceId, true);
   });
 
   // 2. Query contact presence & register subscription
   socket.on('check-contact', (data, callback) => {
-    const { phoneHash } = data;
-    const requesterDeviceId = socketToDevice.get(socket.id);
-    
-    if (!phoneHash) {
-      if (typeof callback === 'function') callback({ error: 'Missing phoneHash' });
-      return;
-    }
-
-    console.log(`[Contact] Lookup requested for phone hash starting with: ${phoneHash.substring(0, 8)}...`);
-    const registeredUser = usersByPhone.get(phoneHash);
-
-    if (registeredUser) {
-      // Subscribe this requester to target's presence updates
-      const targetDeviceId = registeredUser.deviceId;
-      if (!presenceSubscriptions.has(targetDeviceId)) {
-        presenceSubscriptions.set(targetDeviceId, new Set());
+    try {
+      if (!data) {
+        if (typeof callback === 'function') callback({ error: 'Missing payload' });
+        return;
       }
-      presenceSubscriptions.get(targetDeviceId).add(socket.id);
-
-      console.log(`[Presence] Socket ${socket.id} (device ${requesterDeviceId}) subscribed to presence of ${targetDeviceId}`);
-
-      if (typeof callback === 'function') {
-        callback({
-          registered: true,
-          deviceId: targetDeviceId,
-          publicKey: registeredUser.publicKey,
-          isOnline: registeredUser.isOnline
-        });
+      const { phoneHash } = data;
+      const requesterDeviceId = socketToDevice.get(socket.id);
+      
+      if (!phoneHash) {
+        if (typeof callback === 'function') callback({ error: 'Missing phoneHash' });
+        return;
       }
-    } else {
-      if (typeof callback === 'function') {
-        callback({ registered: false });
+
+      console.log(`[Contact] Lookup requested for phone hash starting with: ${phoneHash.substring(0, 8)}...`);
+      const registeredUser = usersByPhone.get(phoneHash);
+
+      if (registeredUser) {
+        // Subscribe this requester to target's presence updates
+        const targetDeviceId = registeredUser.deviceId;
+        if (!presenceSubscriptions.has(targetDeviceId)) {
+          presenceSubscriptions.set(targetDeviceId, new Set());
+        }
+        presenceSubscriptions.get(targetDeviceId).add(socket.id);
+
+        console.log(`[Presence] Socket ${socket.id} (device ${requesterDeviceId}) subscribed to presence of ${targetDeviceId}`);
+
+        if (typeof callback === 'function') {
+          callback({
+            registered: true,
+            deviceId: targetDeviceId,
+            publicKey: registeredUser.publicKey,
+            isOnline: registeredUser.isOnline
+          });
+        }
+      } else {
+        if (typeof callback === 'function') {
+          callback({ registered: false });
+        }
       }
+    } catch (err) {
+      console.error("[Server Error] check-contact failed:", err);
+      if (typeof callback === 'function') callback({ error: 'Internal server error' });
     }
   });
 
   // 3. Connection Request (Initiate signalling negotiation)
   socket.on('connection-request', (data) => {
-    const senderDeviceId = socketToDevice.get(socket.id);
-    const { targetDeviceId } = data;
-    if (!senderDeviceId || !targetDeviceId) return;
+    try {
+      if (!data) return;
+      const senderDeviceId = socketToDevice.get(socket.id);
+      const { targetDeviceId } = data;
+      if (!senderDeviceId || !targetDeviceId) return;
 
-    console.log(`[Signaling] Connection request from ${senderDeviceId} to ${targetDeviceId}`);
-    const target = devices.get(targetDeviceId);
-    if (target && target.isOnline) {
-      io.to(target.socketId).emit('connection-request', { senderDeviceId });
-    } else {
-      socket.emit('connection-error', { targetDeviceId, reason: 'Peer offline' });
+      console.log(`[Signaling] Connection request from ${senderDeviceId} to ${targetDeviceId}`);
+      const target = devices.get(targetDeviceId);
+      if (target && target.isOnline) {
+        io.to(target.socketId).emit('connection-request', { senderDeviceId });
+      } else {
+        socket.emit('connection-error', { targetDeviceId, reason: 'Peer offline' });
+      }
+    } catch (err) {
+      console.error("[Server Error] connection-request failed:", err);
     }
   });
 
   // 4. WebRTC Offer relay
   socket.on('webrtc-offer', (data) => {
-    const senderDeviceId = socketToDevice.get(socket.id);
-    const { targetDeviceId, sdp } = data;
-    if (!senderDeviceId || !targetDeviceId || !sdp) return;
+    try {
+      if (!data) return;
+      const senderDeviceId = socketToDevice.get(socket.id);
+      const { targetDeviceId, sdp } = data;
+      if (!senderDeviceId || !targetDeviceId || !sdp) return;
 
-    // Secure practice: Never log the actual SDP content to logs
-    console.log(`[Signaling] Offer relayed from ${senderDeviceId} to ${targetDeviceId}`);
-    const target = devices.get(targetDeviceId);
-    if (target && target.isOnline) {
-      io.to(target.socketId).emit('webrtc-offer', {
-        senderDeviceId,
-        sdp // Relayed to destination client only
-      });
+      console.log(`[Signaling] Offer relayed from ${senderDeviceId} to ${targetDeviceId}`);
+      const target = devices.get(targetDeviceId);
+      if (target && target.isOnline) {
+        io.to(target.socketId).emit('webrtc-offer', {
+          senderDeviceId,
+          sdp // Relayed to destination client only
+        });
+      }
+    } catch (err) {
+      console.error("[Server Error] webrtc-offer failed:", err);
     }
   });
 
   // 5. WebRTC Answer relay
   socket.on('webrtc-answer', (data) => {
-    const senderDeviceId = socketToDevice.get(socket.id);
-    const { targetDeviceId, sdp } = data;
-    if (!senderDeviceId || !targetDeviceId || !sdp) return;
+    try {
+      if (!data) return;
+      const senderDeviceId = socketToDevice.get(socket.id);
+      const { targetDeviceId, sdp } = data;
+      if (!senderDeviceId || !targetDeviceId || !sdp) return;
 
-    console.log(`[Signaling] Answer relayed from ${senderDeviceId} to ${targetDeviceId}`);
-    const target = devices.get(targetDeviceId);
-    if (target && target.isOnline) {
-      io.to(target.socketId).emit('webrtc-answer', {
-        senderDeviceId,
-        sdp
-      });
+      console.log(`[Signaling] Answer relayed from ${senderDeviceId} to ${targetDeviceId}`);
+      const target = devices.get(targetDeviceId);
+      if (target && target.isOnline) {
+        io.to(target.socketId).emit('webrtc-answer', {
+          senderDeviceId,
+          sdp
+        });
+      }
+    } catch (err) {
+      console.error("[Server Error] webrtc-answer failed:", err);
     }
   });
 
   // 6. ICE Candidate relay
   socket.on('ice-candidate', (data) => {
-    const senderDeviceId = socketToDevice.get(socket.id);
-    const { targetDeviceId, candidate } = data;
-    if (!senderDeviceId || !targetDeviceId || !candidate) return;
+    try {
+      if (!data) return;
+      const senderDeviceId = socketToDevice.get(socket.id);
+      const { targetDeviceId, candidate } = data;
+      if (!senderDeviceId || !targetDeviceId || !candidate) return;
 
-    // Secure practice: Never log the actual ICE candidate details to logs
-    console.log(`[Signaling] ICE Candidate relayed from ${senderDeviceId} to ${targetDeviceId}`);
-    const target = devices.get(targetDeviceId);
-    if (target && target.isOnline) {
-      io.to(target.socketId).emit('ice-candidate', {
-        senderDeviceId,
-        candidate
-      });
+      console.log(`[Signaling] ICE Candidate relayed from ${senderDeviceId} to ${targetDeviceId}`);
+      const target = devices.get(targetDeviceId);
+      if (target && target.isOnline) {
+        io.to(target.socketId).emit('ice-candidate', {
+          senderDeviceId,
+          candidate
+        });
+      }
+    } catch (err) {
+      console.error("[Server Error] ice-candidate failed:", err);
     }
   });
 
   // 7. Connection Error signaling
   socket.on('connection-error', (data) => {
-    const senderDeviceId = socketToDevice.get(socket.id);
-    const { targetDeviceId, reason } = data;
-    if (!senderDeviceId || !targetDeviceId) return;
+    try {
+      if (!data) return;
+      const senderDeviceId = socketToDevice.get(socket.id);
+      const { targetDeviceId, reason } = data;
+      if (!senderDeviceId || !targetDeviceId) return;
 
-    console.log(`[Signaling] Connection error reported by ${senderDeviceId} to ${targetDeviceId}: ${reason}`);
-    const target = devices.get(targetDeviceId);
-    if (target && target.isOnline) {
-      io.to(target.socketId).emit('connection-error', {
-        senderDeviceId,
-        reason
-      });
+      console.log(`[Signaling] Connection error reported by ${senderDeviceId} to ${targetDeviceId}: ${reason}`);
+      const target = devices.get(targetDeviceId);
+      if (target && target.isOnline) {
+        io.to(target.socketId).emit('connection-error', {
+          senderDeviceId,
+          reason
+        });
+      }
+    } catch (err) {
+      console.error("[Server Error] connection-error failed:", err);
     }
   });
 
   // 8. Disconnect handling
   socket.on('disconnect', () => {
-    console.log(`[Socket] Client disconnected: ${socket.id}`);
-    const deviceId = socketToDevice.get(socket.id);
-    if (deviceId) {
-      const deviceRecord = devices.get(deviceId);
-      if (deviceRecord) {
-        deviceRecord.isOnline = false;
-        deviceRecord.socketId = null;
-        
-        // Notify subscribers
-        notifyPresenceChange(deviceId, false);
+    try {
+      console.log(`[Socket] Client disconnected: ${socket.id}`);
+      const deviceId = socketToDevice.get(socket.id);
+      if (deviceId) {
+        const deviceRecord = devices.get(deviceId);
+        if (deviceRecord) {
+          deviceRecord.isOnline = false;
+          deviceRecord.socketId = null;
+          
+          // Notify subscribers
+          notifyPresenceChange(deviceId, false);
+        }
+        socketToDevice.delete(socket.id);
       }
-      socketToDevice.delete(socket.id);
-    }
 
-    // Clean up subscriptions where this socket was the observer
-    for (const [targetDeviceId, subscribers] of presenceSubscriptions.entries()) {
-      if (subscribers.has(socket.id)) {
-        subscribers.delete(socket.id);
-        console.log(`[Presence] Removed ${socket.id} subscription to ${targetDeviceId}`);
+      // Clean up subscriptions where this socket was the observer
+      for (const [targetDeviceId, subscribers] of presenceSubscriptions.entries()) {
+        if (subscribers.has(socket.id)) {
+          subscribers.delete(socket.id);
+          console.log(`[Presence] Removed ${socket.id} subscription to ${targetDeviceId}`);
+        }
       }
+    } catch (err) {
+      console.error("[Server Error] disconnect handler failed:", err);
     }
   });
+});
 });
 
 // Basic HTTP status endpoint
